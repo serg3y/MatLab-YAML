@@ -1,7 +1,7 @@
-function [J,str] = yamlwrite(S,file)
-%Convert struct to Java class and write to YAML file using Snakeyaml.
-% yamlwrite(S,file)
-% [J,str] = yamlwrite(S,file)
+function txt = yamlwrite(data,file)
+%Convert data to YAML text (uses SnakeYAML).
+% yamlwrite(data,file)         -write data to yaml file
+% txt = yamlwrite(data,__)       -output yaml text
 %
 %See also: yamlsetup, yamlread
 
@@ -10,47 +10,55 @@ if ~any(contains(javaclasspath('-all'),'snakeyaml'))
     yamlsetup
 end
 
-%convert to java
-J = matlab2java(S);
+%generate yaml text
+txt = yamlencode(data);
 
-%generate yaml string using snakeyaml
-str = org.yaml.snakeyaml.Yaml().dump(J).char;
-
-%write to file
+%write to file (optional)
 if nargin>1 && ~isempty(file)
     fid = fopen(file,'w');
-    fprintf(fid,'%s',str);
+    fprintf(fid,'%s',txt);
     fclose(fid);
 end
 
-function J = matlab2java(S)
-%Convert MatLab struct to Java class
-if ischar(S)
-    J = java.lang.String(S);
-elseif isnumeric(S) && isempty(S)
-    J = false(0); %converts to null
-elseif isnumeric(S)
-    J = java.lang.Double(S);
-elseif islogical(S)
-    J = java.lang.Boolean(S);
-elseif iscell(S)
-    J = java.util.ArrayList;
-    for k = 1:size(S,2)
-        J.add(matlab2java(S{k}));
+function txt = yamlencode(data)
+%Convert MatLab data to YAML text
+J = matlab2java(data); %intermediate Java class
+txt = org.yaml.snakeyaml.Yaml().dump(J).char; %yaml text
+
+function J = matlab2java(data) 
+%Convert MatLab data to a Java class
+if isnumeric(data) && isempty(data) %null
+    J = false(0);
+elseif ischar(data)
+    J = java.lang.String(data);
+elseif isnumeric(data)
+    J = java.lang.Double(data);
+elseif islogical(data)
+    J = java.lang.Boolean(data);
+elseif iscell(data) %convert arrays to nested cells, dim order: ..>4>3>1>2
+    if ndims(data)>2
+        data = num2cell(data,1:ndims(data)-1); %nest higher dimensions
+    elseif size(data,1)>1 %nest columns
+        data = num2cell(data,2);
     end
-elseif isstruct(S)
+    J = java.util.ArrayList; %init
+    for k = 1:numel(data)
+        J.add(matlab2java(data{k}));
+    end
+elseif isstruct(data) && ~isscalar(data)
+    J = matlab2java(num2cell(data));
+elseif isstruct(data)
     J = java.util.LinkedHashMap;
-    for f = string(fields(S))'
-        J.put(f,matlab2java(S.(f)));
+    for f = string(fields(data))'
+        J.put(f,matlab2java(data.(f)));
     end
-elseif isdatetime(S)
-    %time with milisec: 2011-03-29T16:09:20.667Z
+elseif isdatetime(data) %time with millisec: 2011-03-29T16:09:20.667Z
     J = java.util.Calendar.getInstance();
-    J.setTimeInMillis(S.Second*1000);
-    [Y,M,D,h,m,s] = datevec(S);
-    J.set(Y,M-1,D,h,m,s);
+    J.setTimeInMillis(data.Second*1000);
+    [Y,data,D,h,m,s] = datevec(data);
+    J.set(Y,data-1,D,h,m,s);
     J.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
 else
-    J = S;
-    fprintf(2,'Unsupported data type: %s\n',class(S));
+    J = data;
+    fprintf(2,'Unsupported data type: %s\n',class(data));
 end
