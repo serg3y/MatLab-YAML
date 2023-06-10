@@ -1,7 +1,7 @@
 function txt = yamlwrite(data,file)
 %Convert data to YAML text (uses SnakeYAML).
-% yamlwrite(data,file)         -write data to yaml file
-% txt = yamlwrite(data,__)       -output yaml text
+% txt = yamlwrite(data)     -encode data into yaml string
+% yamlwrite(data,file)       -write data to yaml file
 %
 %See also: yamlsetup, yamlread
 
@@ -38,7 +38,7 @@ elseif isnumeric(data)
 elseif islogical(data)
     J = java.lang.Boolean(data);
 elseif iscell(data) %convert arrays to nested cells, dim order: ..>4>3>1>2
-    if ndims(data)>2
+    if ndims(data)>2 %#ok<ISMAT>
         data = num2cell(data,1:ndims(data)-1); %nest higher dimensions
     elseif size(data,1)>1 %nest columns
         data = num2cell(data,2);

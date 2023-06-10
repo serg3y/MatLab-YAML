@@ -1,6 +1,6 @@
 function yamlsetup(fold,save)
-%Download and add SnakeYAML to java class path.
-% yamlsetup          -download to same folder as this m file
+%Download and add SnakeYAML.jar to java class path.
+% yamlsetup          -download jar to same folder as this m file
 % yamlsetup(fold)      -download to custom folder
 % yamlsetup(fold,save)   -if true adds jar to static javaclasspath.txt
 %
