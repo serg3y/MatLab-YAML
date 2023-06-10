@@ -31,6 +31,8 @@ if isnumeric(data) && isempty(data) %null
     J = false(0);
 elseif ischar(data)
     J = java.lang.String(data);
+elseif numel(data)>1 && (isnumeric(data) || isstruct(data) || islogical(data)) %convert non scalars into cells
+    J = matlab2java(num2cell(data));
 elseif isnumeric(data)
     J = java.lang.Double(data);
 elseif islogical(data)
@@ -45,8 +47,6 @@ elseif iscell(data) %convert arrays to nested cells, dim order: ..>4>3>1>2
     for k = 1:numel(data)
         J.add(matlab2java(data{k}));
     end
-elseif isstruct(data) && ~isscalar(data)
-    J = matlab2java(num2cell(data));
 elseif isstruct(data)
     J = java.util.LinkedHashMap;
     for f = string(fields(data))'
