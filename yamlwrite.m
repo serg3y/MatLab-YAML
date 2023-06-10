@@ -1,7 +1,7 @@
 function txt = yamlwrite(data,file)
 %Convert data to YAML text (uses SnakeYAML).
+% yamlwrite(data,file)     -write data to yaml file
 % txt = yamlwrite(data)     -encode data into yaml string
-% yamlwrite(data,file)       -write data to yaml file
 %
 %See also: yamlsetup, yamlread
 

@@ -1,7 +1,7 @@
 function [data,txt] = yamlread(txt,join)
 %Convert YAML text to data (uses SnakeYAML).
-% data = yamlread(yaml)      -yaml string or location of yaml file
-% data = yamlread(yaml,join)   -join cells where possible (default:0)
+% data = yamlread(txt)      -yaml string or location of yaml file
+% data = yamlread(txt,join)   -join cells where possible (default:0)
 %
 %See also: yamlsetup, yamlwrite
 
