@@ -1,0 +1,82 @@
+# Input file for Kalman orbit determination
+
+# Lines starting with '#' are silently ignored
+
+# This file must contain one orbit defined as
+# keplerian, equinoctial, circular or cartesian.
+
+# All dates are treated in UTC timescale.
+# The inertial frame for orbit definition and propagation is EME2000.
+# Physical data are read from the src/tutorial/resources/tutorial-orekit-data
+# directory
+
+# Estimated parameters (clock offsets, atmospheric parameters, etc.)
+# are given by [initialValue, minValue, maxValue]
+
+# Orbit definition (position in meters, velocity in meter per seconds, angles in degrees, date in ISO 8601)
+# If not defined, we use the first entry of the CPF ephemeris
+#orbit:
+#  date: "2016-02-14T12:14:48.132"
+#  frameName: "EME2000"
+#  orbitType:
+#    name: "CARTESIAN"
+#    cartesian: 
+#      x: -5532232.334281051
+#      y: 1.0025636857493076e7
+#      z: -3578941.1097531132
+#      vx: -3871.2032545876173
+#      vy: -607.9056504788068
+#      vz: 4281.008504966887
+
+# Spacecraft definition (mass in kilogrammes)
+spacecraft:
+  name: "LAGEOS-2"
+  id: "1992-070A"
+  mass: 405.380
+
+# Propagator definition
+propagator:
+  # Numerical integrator (fixed step (s) and position error (m))
+  integrator:
+    fixedStep: 43200.0
+    positionError: 1.0
+  # Force models used by the propagator (only the ones used !!!)
+  forceModels:
+    # Central body gravity
+    gravity:
+      degree: 20
+      order: 20
+    # 3rd body attraction
+    thirdBody:
+      - name: "Sun"
+      - name: "Moon"
+    # Solar radiation pressure
+    solarRadiationPressure:
+      # Estimated solar radiation coefficient
+      cr:
+        values: [1.13, -10.0, 10.0]
+        isEstimated: false
+      area: 0.2831331
+
+# Body definition (default is a WGS-84 ellipsoid with IERS-2010 conventions and simple EOP frame)
+body:
+  iersConventionYear: 2010
+  frameName: "CIO/2010-based ITRF simple EOP"
+  equatorialRadius: 6378137.0
+  inverseFlattening: 298.257223563
+
+# Measurements definition
+measurements:
+  # BE CAREFUL: With the current implementation of the tutorial, measurement files must be chronologically ordered
+  measurementFiles: ["lageos2_cpf_160213_5441.sgf"]
+  position:
+    sigmaPos: 2.0
+    weight: 1.0
+
+# kalman definition
+kalman:
+  cartesianOrbitalP: [100.0, 100.0, 100.0, 1e-3, 1e-3, 1e-3]
+  cartesianOrbitalQ: [1.e-9, 1.e-9, 1.e-9, 1.e-12, 1.e-12, 1.e-12]
+
+# base name of the output files (log and residuals), no files created if empty
+outputBaseName: "lageos2-eskf"

@@ -100,3 +100,14 @@ for k = 5:numel(files)
     yamlwrite(data_read,'out.yaml');    fprintf(', write: ok')              %write
     data_reread = yamlread('out.yaml',0); fprintf(', consistent: %d\n',isequal(data_read,data_reread)) %consistent
 end
+
+%%
+clc
+[t,j] = yamlread(['- B: 1' 10 '- B: 1' ])
+t
+yamlwrite(t)
+% [t,j] = yamlread(['A:' 10 '- B: 1' 10 '- B: 2'])
+% [t,j] = yamlread(['A:' 10 '  B: 1'])
+
+%%
+yamlwrite(yamlread(['A:' 10 '- B: 2' 10 '  C:' 10 '    D: 1']))

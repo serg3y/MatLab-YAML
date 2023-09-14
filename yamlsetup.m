@@ -1,30 +1,32 @@
-function yamlsetup(fold,save)
-%Download and add SnakeYAML.jar to java class path.
+function yamlsetup(fold,save,ver)
+%Download and add SnakeYAML-<ver>.jar to MatLab's javaclasspath.
 % yamlsetup          -download jar to same folder as this m file
 % yamlsetup(fold)      -download to custom folder
 % yamlsetup(fold,save)   -if true adds jar to static javaclasspath.txt
+% yamlsetup(fold,save,ver)  -set SnakeYAML version (default: '2.0')
 %
 %See also: yamlread, yamlwrite
 
 %defaults
 if nargin<1 || isempty(fold), fold = fileparts(mfilename('fullpath')); end
 if nargin<2 || isempty(save), save = false; end
+if nargin<3 || isempty(ver),  ver  = '2.0'; end
 
-jar = 'snakeyaml-2.0.jar';
+jar = ['snakeyaml-' ver '.jar']; %name of jar file
 pth = fullfile(fold,jar);
-url = 'https://repo1.maven.org/maven2/org/yaml/snakeyaml/2.0/snakeyaml-2.0.jar';
+url = ['https://repo1.maven.org/maven2/org/yaml/snakeyaml/' ver '/snakeyaml-' ver '.jar'];
 
 %download snakeyaml
 if ~isfile(pth)
     websave(pth,url);
 end
 
-%add jar file temporarily to dynamic javaclasspaths
+%add jar file temporarily to dynamic javaclasspath
 if ~any(contains(javaclasspath('-all'),jar))
     javaaddpath(pth)
 end
 
-%add jar file permanently to static javaclasspaths
+%add jar file permanently to static javaclasspath
 if save
     javaPathsFile = fullfile(userpath,'javaclasspath.txt');
     if isfile(javaPathsFile)
